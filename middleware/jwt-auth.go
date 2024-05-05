@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"fmt"
 	"go-rest/service"
 	"log"
 	"net/http"
@@ -16,7 +17,7 @@ func AuthorizeJWT() gin.HandlerFunc{
 		tokenString := authHeader[len(BEARER_SCHEMA):]
 
 		token, err := service.NewJWTService().ValidateToken(tokenString)
-
+		fmt.Println(token)
 		if token.Valid {
 			claims := token.Claims.(jwt.MapClaims)
 			log.Println("Claims[Name]: ", claims["name"])

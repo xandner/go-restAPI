@@ -28,7 +28,7 @@ func setupLogOutput() {
 func main() {
 	setupLogOutput()
 	server := gin.New()
-	server.Use(gin.Recovery(), gin.Logger(), middleware.BasicAuth())
+	server.Use(gin.Recovery(), gin.Logger())
 
 	server.Static("/css", "./templates/css")
 	server.LoadHTMLGlob("templates/*.html")
@@ -44,7 +44,7 @@ func main() {
 		}
 	})
 
-	apiRoutes := server.Group("/api")
+	apiRoutes := server.Group("/api", middleware.AuthorizeJWT())
 	{
 		apiRoutes.GET("/videos", func(ctx *gin.Context) {
 			ctx.JSON(200, videoController.FindAll())
@@ -60,7 +60,7 @@ func main() {
 		})
 	}
 
-	viewRoutes := server.Group("/views")
+	viewRoutes := server.Group("/views", middleware.BasicAuth())
 	{
 		viewRoutes.GET("/videos", videoController.ShowAll)
 	}
