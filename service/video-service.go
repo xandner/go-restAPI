@@ -2,6 +2,8 @@ package service
 
 import "go-rest/entity"
 
+
+
 type VideoService interface {
 	Save(entity.Video) entity.Video
 	FindAll() []entity.Video
