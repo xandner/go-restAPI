@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"go-rest/controller"
 	"go-rest/middleware"
 	"go-rest/service"
@@ -14,6 +15,9 @@ import (
 var (
 	videoService    service.VideoService       = service.New()
 	videoController controller.VideoController = controller.New(videoService)
+	loginService    service.LoginService       = service.NewLoginService()
+	jwtService      service.JWTService         = service.NewJWTService()
+	loginController controller.LoginController = controller.NewLoginController(loginService, jwtService)
 )
 
 func setupLogOutput() {
@@ -28,6 +32,17 @@ func main() {
 
 	server.Static("/css", "./templates/css")
 	server.LoadHTMLGlob("templates/*.html")
+
+	server.POST("/login", func(ctx *gin.Context) {
+		token := loginController.Login(ctx)
+		if token != "" {
+			ctx.JSON(http.StatusOK, gin.H{
+				"token": token,
+			})
+		} else {
+			ctx.JSON(http.StatusUnauthorized, nil)
+		}
+	})
 
 	apiRoutes := server.Group("/api")
 	{
@@ -49,6 +64,8 @@ func main() {
 	{
 		viewRoutes.GET("/videos", videoController.ShowAll)
 	}
+	port := os.Getenv("PORT")
+	fmt.Println(port)
 	server.Run(":8080")
 
 }
